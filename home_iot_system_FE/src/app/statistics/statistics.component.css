@@ -1,0 +1,125 @@
+.statistics-container {
+  background-color: #f0f0f0;
+  padding: 30px;
+}
+
+.show-rows {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+}
+
+.show-rows label {
+  margin-right: 5px;
+  font-size: 15px;
+}
+
+.show-rows select {
+  padding: 3px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  outline: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background-color: white;
+}
+
+th, td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+th {
+  cursor: pointer;
+}
+
+th i {
+  margin-left: 5px;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+  /* CSS cho thanh tìm kiếm */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+  }
+  
+  .search-bar label {
+    margin-right: 10px;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .search-bar select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    outline: none;
+    margin-right: 10px; /* Khoảng cách giữa dropdown và ô tìm kiếm */
+  }
+  
+  .search-bar select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(38, 143, 255, 0.25);
+  }
+  
+  .search-bar input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    outline: none;
+  }
+  
+  .search-bar input[type="text"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(38, 143, 255, 0.25);
+  }
+  
+  .search-bar button {
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    padding: 10px 15px;
+    margin-left: 5px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+  }
+  
+  .search-bar button i {
+    margin-right: 5px;
+  }
+  
+  .search-bar button:hover {
+    background-color: #0056b3;
+  }
+  
+  .search-bar button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(38, 143, 255, 0.25);
+  }
+  

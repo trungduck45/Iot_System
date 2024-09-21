@@ -1,0 +1,61 @@
+<div class="statistics-container">
+  <!-- Ô tìm kiếm và nút tìm kiếm -->
+  <div class="search-bar">
+    <label for="search-by">Search by:</label>
+    <select id="search-by" [(ngModel)]="searchBy" (change)="search()">
+      <option value="all">All</option>
+      <option value="date">Date</option>
+      <option value="temperature">Temperature</option>
+      <option value="humidity">Humidity</option>
+      <option value="light">Light</option>
+    </select>
+  
+    <input type="text" placeholder="Search..." [(ngModel)]="searchTerm" (ngModelChange)="search()" />
+    <button (click)="search()">
+      <i class="fa fa-search"></i> <!-- Search icon -->
+    </button>
+  </div>
+  
+
+  <!-- Dòng "Show rows" và box chọn số lượng giá trị hiển thị -->
+  <div class="show-rows">
+    <label for="rows">Show</label>
+    <select id="rows" [(ngModel)]="itemsPerPage" (change)="updateRows()">
+      <option value="10">10 value</option>
+      <option value="20">20 value</option>
+      <option value="30">30 value</option>
+      <option value="50">50 value</option>
+    </select>
+  </div>
+
+  <table>
+    <thead> 
+      <tr>
+        <th (click)="sortById()">
+          ID
+          <i class="fa" [ngClass]="{
+            'fa-arrow-up': sortOrder === 'asc',
+            'fa-arrow-down': sortOrder === 'desc'
+          }"></i>
+        </th>
+        <th>Temperature</th>
+        <th>Humidity</th>
+        <th>Light</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of filteredData | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
+        <td>{{ item.id }}</td>
+        <td>{{ item.temperature }}°C</td>
+        <td>{{ item.humidity }}%</td>
+        <td>{{ item.light }} lux</td>
+        <td>{{ item.time | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Phân trang -->
+  <pagination-controls (pageChange)="currentPage = $event"></pagination-controls>
+</div>

@@ -1,0 +1,420 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #f0f0f0;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.col-nhiet-do {
+  flex: 1;
+  padding: 10px;
+  /* Adjust padding as needed */
+  border-radius: 30px;
+  /* Góc bo tròn hơn */
+  text-align: center;
+  border: 2px solid #e8e8e8;
+  /* Border for the outer box */
+  margin: 10px 10px 10px 20px;
+  background-color: white;
+  font-size: 15px;
+  box-sizing: border-box;
+  /* Ensure padding and border are included in the element's width */
+}
+
+.col {
+  display: flex; /* Use flexbox layout */
+  flex-direction: column; /* Arrange items in a column */
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #e8e8e8; /* Border for the outer box */
+  text-align: center;
+  margin: 10px 10px 0px 10px;
+  background-color: white;
+  border-radius: 20px; /* Rounded corners */
+  justify-content: center; /* Centers content vertically */
+  align-items: center; /* Centers content horizontally */
+}
+
+
+.col-thong-ke {
+  flex: 1;
+  border: 2px solid #e8e8e8;
+  /* Đường viền dày hơn và có màu đậm hơn */
+  border-radius: 30px;
+  /* Góc bo tròn hơn */
+  text-align: center;
+  font-size: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* Đổ bóng nhẹ */
+  background-color: white;
+  margin-left: 0px;
+  margin-right: 10px;
+}
+
+.chart-container {
+  display: flex;
+  justify-content: space-between; /* Đẩy các biểu đồ về phía hai bên */
+  width: 100%;
+  padding: 0; /* Loại bỏ khoảng đệm xung quanh */
+}
+
+.chart-item {
+  flex: 1; /* Cho phép biểu đồ mở rộng để chiếm hết không gian có sẵn */
+  min-width: 0;
+  margin: 0; /* Loại bỏ khoảng cách giữa các biểu đồ */
+  padding: 0; /* Loại bỏ khoảng đệm xung quanh */
+  overflow: visible; /* Đảm bảo nội dung không bị ẩn */
+  display: flex;
+  flex-direction: column; /* Bố trí theo chiều dọc */
+  align-items: stretch; /* Đảm bảo các biểu đồ kéo dài toàn bộ chiều rộng của phần tử cha */
+}
+
+
+.col-dieu-khien {
+  flex: 1;
+  padding: 20px;
+  /* Có thể thay đổi padding tùy ý */
+  border: 2px solid #e8e8e8;
+  /* Đường viền dày hơn và có màu đậm hơn */
+  border-radius: 30px;
+  /* Góc bo tròn hơn */
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* Đổ bóng nhẹ */
+  align-items: center;
+  margin-left: 10px;
+  margin-right: 0px;
+  background-color: white;
+}
+.col-dieu-khien h2 {
+  text-align: center; /* Căn giữa tiêu đề */
+  color: #333; /* Màu chữ tiêu đề */
+  margin-top: 0px;
+  margin-bottom: 30px;
+}
+.col-dieu-khien p {
+  display: flex; /* Sử dụng flexbox để căn chỉnh các phần tử trong hàng */
+  align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.col-dieu-khien p .device-name {
+  flex: 1; /* Chiếm toàn bộ không gian bên trái */
+  text-align: left; /* Căn lề bên trái cho tên thiết bị */
+}
+
+.col-dieu-khien p .control-buttons {
+  display: flex; /* Sử dụng flexbox cho các nút để sắp xếp chúng ngang hàng */
+  justify-content: flex-end; /* Căn chỉnh các nút về phía bên phải */
+  gap: 0px; /* Khoảng cách giữa các nút */
+}
+
+.col-dieu-khien button {
+  background-color: lightgray; /* Màu nền cho nút bị vô hiệu hóa */
+  color: #888; /* Màu chữ cho nút bị vô hiệu hóa */
+  border: none; /* Bỏ đường viền */
+  padding: 8px 16px; /* Đệm cho nút */
+  cursor: pointer; /* Thay đổi con trỏ chuột khi di chuyển qua nút */
+  border-radius: 4px; /* Bo tròn góc nút */
+  transition: background-color 0.3s ease; /* Thêm hiệu ứng chuyển màu nền */
+  margin-left: 10px; /* Khoảng cách giữa các nút */
+}
+/* CSS cho nút ON và OFF */
+.col-dieu-khien button.on-active {
+  background-color: blue; /* Màu xanh cho nút ON khi được nhấn */
+  color: white; /* Màu chữ trắng */
+}
+
+.col-dieu-khien button.off-active {
+  background-color: red; /* Màu đỏ cho nút OFF khi được nhấn */
+  color: white; /* Màu chữ trắng */
+}
+
+.col-dieu-khien button.inactive {
+  background-color: lightgray; /* Màu xám cho nút không hoạt động */
+  color: #888; /* Màu chữ cho nút không hoạt động */
+}
+
+
+
+
+.col-nhiet-do-inside {
+  width: calc(100% - 24px);
+  /* Full width minus margins */
+  border-radius: 15px;
+  border: 2px solid #e8e8e8;
+  /* Border for the inner box */
+  margin: 0 auto;
+  /* Centering the box horizontally */
+  padding: 10px;
+  /* Adjust padding as needed */
+
+  display: flex;
+  flex-direction: column;
+  /* Stack elements vertically */
+  align-items: center;
+  /* Center items horizontally */
+  justify-content: center;
+  /* Center items vertically */
+  background-color: green;
+  /* Assuming this is the green box */
+}
+
+.col-nhiet-do p,
+.col-nhiet-do h2 {
+  font-size: 15px;
+  margin: 0;
+  /* Remove default margins */
+}
+
+.col-Do-Am,
+.col-anh-sang {
+  flex: 1;
+  padding: 10px;
+  border-radius: 30px;
+  /* Góc bo tròn hơn */
+  text-align: center;
+  margin: 10px;
+  background-color: white;
+  border: 2px solid #e8e8e8;
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Centers content vertically */
+  align-items: center;
+  /* Centers content horizontally */
+  height: 150px;
+  /* Set a fixed height to maintain size, adjust as needed */
+  width: 150px;
+  /* Set a fixed width to maintain size, adjust as needed */
+}
+
+.col-Do-Am p,
+.col-Do-Am h2 {
+  font-size: 15px;
+}
+
+
+
+.col-anh-sang p,
+.col-anh-sang h2 {
+  font-size: 15px;
+}
+
+.col-6 {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.Tmuc1 {
+  background-color: #0000ff;
+  /* Màu xanh lạnh */
+  color: #000000;
+}
+
+.Tmuc2 {
+  background-color: #00ffff;
+  /* Màu xanh lạnh */
+  color: #000;
+}
+
+.Tmuc3 {
+  background-color: #2cf34e;
+  /* Màu xanh lạnh */
+  color: #000;
+}
+
+.Tmuc4 {
+  background-color: #ffff00;
+  /* Màu xanh lạnh */
+  color: #000;
+}
+
+.Tmuc5 {
+  background-color: #eb7e01;
+  /* Màu xanh lạnh */
+  color: #000;
+}
+
+.Tmuc6 {
+  background-color: #ff0000c8;
+  /* Màu xanh lạnh */
+  color: #000;
+}
+
+.Tmuc7 {
+  background-color: #f701f7;
+  /* Màu xanh lạnh */
+  color: #000;
+}
+
+.Hmuc1 {
+  background-color: #8fb0f6;
+  color: #000;
+}
+.Hmuc2 {
+  background-color: #6494fb;
+  color: #000;
+}
+.Hmuc3 {
+  background-color: #4780fd;
+  color: #000;
+}
+.Hmuc4 {
+  background-color: #2669f9;
+  color: #000;
+}
+
+.Hmuc5 {
+  background-color: #0051ff;
+  color: #000;
+}
+.Lmuc1 {
+  background-color: #333827;
+  color: #f4f4f4;
+}
+.Lmuc2 {
+  background-color: #6b6d3f;
+  color: #f9f9f9;
+}
+.Lmuc3 {
+  background-color: #f1f9a9;
+  color: #000;
+}
+.Lmuc4 {
+  background-color: #e8f85a;
+  color: #000;
+}
+.Lmuc5 {
+  background-color: #eaf826;
+  color: #000;
+}
+.Lmuc6 {
+  background-color: #ddff00;
+  color: #000;
+}
+button {
+  font-size: 15px;
+  padding: 6px 12px;
+  margin: 0 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+
+.disabled {
+  background-color: #ccc;
+  /* Màu xám cho nút bị vô hiệu hóa */
+  color: #666;
+  cursor: not-allowed;
+}
+
+
+
+/* Style for the toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  /* Width of the switch */
+  height: 34px;
+  /* Height of the switch */
+  margin-left: 10px;
+  /* Space between the icon and the switch */
+}
+
+.switch input {
+  opacity: 0;
+  /* Hide the default checkbox */
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  /* Gray background */
+  transition: .4s;
+  /* Smooth transition */
+  border-radius: 34px;
+  /* Rounded corners */
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  /* Height of the slider circle */
+  width: 26px;
+  /* Width of the slider circle */
+  border-radius: 50%;
+  /* Circle shape */
+  left: 4px;
+  /* Position the circle */
+  bottom: 4px;
+  background-color: white;
+  /* White background */
+  transition: .4s;
+  /* Smooth transition */
+}
+
+input:checked+.slider {
+  background-color: #4CAF50;
+  /* Green background when checked */
+}
+
+input:checked+.slider:before {
+  transform: translateX(26px);
+  /* Move the circle to the right */
+}
+
+.fan-icon {
+  display: inline-block;
+  font-size: 35px;
+  transition: transform 0.5s;
+}
+
+.rotate {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Màu mặc định khi LED tắt */
+.led-icon{
+  font-size: 35px;
+}
+.led-icon i.off {
+  color: black; /* Màu đen khi OFF */
+}
+
+/* Màu khi LED bật */
+.led-icon i.on {
+  color: yellow; /* Màu vàng khi ON */
+}

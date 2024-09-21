@@ -1,0 +1,120 @@
+<!-- Thêm Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<div class="container">
+  <div >
+    <!-- Hàng 1 -->
+    <div class="row">
+      <div class="col" [ngClass]="getTemperatureColor()">
+        <div style="display: flex; align-items: center;">
+          <img src=".\assect\temperature.png" alt="Temperature Image"
+            style="width: 40px; height: 40px; margin-right: 10px;" /> <!-- Adjust the path and size as needed -->
+          <div>
+            <h2 style="margin: 0; ">
+              Temperature
+            </h2>
+            <p style="margin: 0;">{{ temperature }}°C</p>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col" [ngClass]="getHumidityColor()">
+        <div style="display: flex; align-items: center;">
+          <img src=".\assect\humidity.png" alt="Humidity Image"
+            style="width: 40px; height: 40px; margin-right: 10px;" />
+          <!-- Adjust the path and size as needed -->
+          <div>
+            <h2 style="margin: 0;">
+              Humidity
+            </h2>
+            <p style="margin: 0;">{{ humidity }}%</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col" [ngClass]="getLightColor()">
+        <div style="display: flex; align-items: center;">
+          <img src=".\assect\sunny.png" alt="Light Image" style="width: 40px; height: 40px; margin-right: 10px;" />
+          <!-- Adjust the path and size as needed -->
+          <div>
+            <h2 style="margin: 0;">
+              Light
+            </h2>
+            <p style="margin: 0;">{{ light }} Lux</p>
+          </div>
+        </div>
+      </div>
+
+
+
+
+    </div>
+
+    <!-- Hàng 2 -->
+    <div class="row">
+      <div class="col-thong-ke">
+        <div class="chart-container">
+          <!-- Biểu đồ 1 -->
+          <div class="chart-item">
+            <h2>Temperature & Humidity</h2>
+            <ngx-charts-line-chart [view]="[440, 440]" [scheme]="colorScheme" [results]="multi" [xAxis]="true"
+              [yAxis]="true" [legend]="true" [legendPosition]="legendPosition" [showXAxisLabel]="true"
+              [showYAxisLabel]="true" [yScaleMin]="0" [yScaleMax]="100" [autoScale]="false"
+               [xAxisLabel]="'Date Time'" [yAxisLabel]="'Value'">
+            </ngx-charts-line-chart>
+
+          </div>
+
+          <!-- Biểu đồ 2 -->
+          <div class="chart-item">
+            <h2>Light</h2>
+            <ngx-charts-line-chart [view]="[440, 440]" [scheme]="lightColorScheme" [results]="lightChartData"
+              [xAxis]="true" [yAxis]="true" [legend]="true" [legendPosition]="legendPosition" [showXAxisLabel]="true"
+              [showYAxisLabel]="true" [yScaleMin]="0" [yScaleMax]="1000" [autoScale]="false"
+               [xAxisLabel]="'Date Time'" [yAxisLabel]="'Value'">
+            </ngx-charts-line-chart>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="col-dieu-khien">
+        <h2>Control Device</h2>
+        <p>
+          <span class="device-name">Fan</span>
+          <span class="fan-icon" [ngClass]="{'rotate': isFanOn}">
+            <i class="fas fa-fan"></i>
+          </span>
+          <span class="control-buttons">
+            <button (click)="toggleFan(true)" [ngClass]="{'on-active': isFanOn, 'inactive': !isFanOn}">ON</button>
+            <button (click)="toggleFan(false)" [ngClass]="{'off-active': !isFanOn, 'inactive': isFanOn}">OFF</button>
+          </span>
+        </p>
+
+        <p>
+          <span class="device-name">Led-1</span>
+          <span class="led-icon">
+            <i class="fas fa-lightbulb" [ngClass]="{'on': isLED1On, 'off': !isLED1On}"></i>
+          </span>
+          <span class="control-buttons">
+            <button (click)="toggleLED1(true)" [ngClass]="{'on-active': isLED1On, 'inactive': !isLED1On}">ON</button>
+            <button (click)="toggleLED1(false)" [ngClass]="{'off-active': !isLED1On, 'inactive': isLED1On}">OFF</button>
+          </span>
+        </p>
+
+        <p>
+          <span class="device-name">Led-2</span>
+          <span class="led-icon">
+            <i class="fas fa-lightbulb" [ngClass]="{'on': isLED2On, 'off': !isLED2On}"></i>
+          </span>
+          <span class="control-buttons">
+            <button (click)="toggleLED2(true)" [ngClass]="{'on-active': isLED2On, 'inactive': !isLED2On}">ON</button>
+            <button (click)="toggleLED2(false)" [ngClass]="{'off-active': !isLED2On, 'inactive': isLED2On}">OFF</button>
+          </span>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
