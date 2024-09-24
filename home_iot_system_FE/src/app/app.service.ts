@@ -38,8 +38,5 @@ export class AppService {
     console.log("payload: ",payload);
     return this.http.post<any>(url, payload);
 }
-
-  
-  
-  
+ 
 }

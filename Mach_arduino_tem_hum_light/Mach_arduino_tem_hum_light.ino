@@ -4,8 +4,8 @@
 #include <AsyncMqttClient.h>
 #include <ArduinoJson.h>
 
-#define WIFI_SSID "iPhone"
-#define WIFI_PASSWORD "khongcomatkhau"
+#define WIFI_SSID "An Nhien"
+#define WIFI_PASSWORD "999999999"
 
 // Raspberri Pi Mosquitto MQTT Broker
 #define MQTT_HOST IPAddress(192, 168, 1,2)

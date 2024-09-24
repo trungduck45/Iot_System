@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.iot_system_BE.entity.DeviceAction;
 import com.example.iot_system_BE.service.DeviceActionService;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
