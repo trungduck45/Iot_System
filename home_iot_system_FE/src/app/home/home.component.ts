@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxChartsModule, Color, ScaleType, LegendPosition } from '@swimlane/ngx-charts';
 import { AppService } from '../app.service';
@@ -11,10 +11,12 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   temperature: any;
   humidity: any;
   light: any;
+  
+  showAlert: boolean = false;
 
   constructor(
     private appService: AppService,
@@ -44,22 +46,14 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.loadChartData();
   }
-  
-  LoadData(): void {
-    this.appService.getAllEnvironmentalData().subscribe({
-      next: (data) => {
-        this.fullStatisticsData = data;
-        this.updateCharts();
-      },
-      error: (error) => {
-        console.error('Lỗi khi lấy dữ liệu môi trường:', error);
-      },
-    });
-  }
+
+  ngOnDestroy(): void {}
 
   loadChartData(): void {
+    console.log('Loading chart data...');
     this.appService.getAllEnvironmentalData().subscribe({
       next: (data) => {
+        console.log('Data loaded:', data);
         this.fullStatisticsData = data;
         this.updateCharts();
       },
@@ -70,6 +64,7 @@ export class HomeComponent implements OnInit {
   }
 
   updateCharts(): void {
+    console.log('Updating charts...');
     this.fullStatisticsData = this.fullStatisticsData.reverse();
     this.temperature = this.fullStatisticsData[0].temperature;
     this.humidity = this.fullStatisticsData[0].humidity;
@@ -117,6 +112,11 @@ export class HomeComponent implements OnInit {
         })),
       },
     ];
+
+    if (this.light < 300) {
+      this.showAlert = true;
+    }
+    console.log('Charts updated.');
   }
 
   getTemperatureColor() {
@@ -154,7 +154,7 @@ export class HomeComponent implements OnInit {
   getLightColor() {
     if (this.light < 100) {
       return 'Lmuc6';
-    } else if (this.light >= 100 && this.light < 200) {
+    } else if (this.light >= 100&& this.light < 200) {
       return 'Lmuc5';
     } else if (this.light >= 200 && this.light < 400) {
       return 'Lmuc4';
@@ -170,45 +170,66 @@ export class HomeComponent implements OnInit {
   isFanOn: boolean = false;
   isLED1On: boolean = false;
   isLED2On: boolean = false;
- 
+  isAlertVisible: boolean = false;
+  alertMessage: string = '';
+  showAlertDevice(message: string) {
+    this.alertMessage = message;
+    this.isAlertVisible = true;
   
+    // Ẩn thông báo sau 2 giây
+    setTimeout(() => {
+      this.isAlertVisible = false;
+    }, 2000);
+  }
   async toggleFan(state: boolean): Promise<void> {
     if (state === this.isFanOn) return; // Nếu trạng thái không thay đổi, không làm gì cả
-    this.isFanOn = state; // Cập nhật trạng thái trước khi gửi lệnh
-    try {
-      const response = await this.appService.sendCommandToBackend('Fan', state).toPromise();
-      if (response && response.status === 200) {
-        console.log('Fan toggled successfully:', response);
-      } else {
-        console.error('Error toggling fan:', response);
-      }
-    } catch (error) {
-      console.error('Error toggling fan:', error);
-    }
+    setTimeout(() => {
+      this.isFanOn = state;
+    }, 1000); // Cập nhật trạng thái trước khi gửi lệnh
+    this.showAlertDevice(`Fan is turning ${state ? 'On' : 'Off'}`);
+    this.appService.sendCommandToBackend('Fan', state).subscribe({
+      next: (response) => {
+      console.log('ok');
+      },
+      error: (error) => console.error('Error toggling Fan:', error)
+    });
+
   }
   
   toggleLED1(state: boolean): void {
     if (state === this.isLED1On) return; // Nếu trạng thái không thay đổi, không làm gì cả
-    this.isLED1On = state; // Cập nhật trạng thái sau khi gửi lệnh
+    setTimeout(() => {
+      this.isLED1On = state;
+    }, 1000); // Cập nhật trạng thái sau khi gửi lệnh
+    this.showAlertDevice(`LED1 is turning ${state ? 'On' : 'Off'}`);
     this.appService.sendCommandToBackend('Led-1', state).subscribe({
       next: (response) => {
-        console.log('LED1 toggled successfully:', response);
+        console.log('ok');
       },
       error: (error) => console.error('Error toggling LED1:', error)
     });
   }
   
   toggleLED2(state: boolean): void {
+
     if (state === this.isLED2On) return; // Nếu trạng thái không thay đổi, không làm gì cả
-    this.isLED2On = state; // Cập nhật trạng thái sau khi gửi lệnh
+
+    setTimeout(() => {
+      this.isLED2On = state;
+    }, 1000); // Cập nhật trạng thái sau khi gửi lệnh
+
+    this.showAlertDevice(`LED2 is turning ${state ? 'On' : 'Off'}`);
+
     this.appService.sendCommandToBackend('Led-2', state).subscribe({
       next: (response) => {
-        console.log('LED2 toggled successfully:', response);
+        console.log('ok');
       },
       error: (error) => console.error('Error toggling LED2:', error)
     });
+    
   }
   
-  
-  
+  closeAlert(): void {
+    this.showAlert = false;
+  }
 }

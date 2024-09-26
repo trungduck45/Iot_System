@@ -7,15 +7,7 @@
     </button>
   </div>
 
-  <div class="show-rows">
-    <label for="rows">Show</label>
-    <select id="rows" [(ngModel)]="itemsPerPage" (change)="updateRows()">
-      <option value="10">10 value</option>
-      <option value="20">20 value</option>
-      <option value="30">30 value</option>
-      <option value="50">50 value</option>
-    </select>
-  </div>
+
 
   <table>
     <thead>
@@ -41,6 +33,14 @@
       </tr>
     </tbody>
   </table>
-
+  <div class="show-rows">
+    <label for="rows">Show</label>
+    <select id="rows" [(ngModel)]="itemsPerPage" (change)="updateRows()">
+      <option value="10">10 value</option>
+      <option value="20">20 value</option>
+      <option value="30">30 value</option>
+      <option value="50">50 value</option>
+    </select>
+  </div>
   <pagination-controls (pageChange)="currentPage = $event"></pagination-controls>
 </div>

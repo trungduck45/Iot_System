@@ -418,3 +418,33 @@ input:checked+.slider:before {
 .led-icon i.on {
   color: yellow; /* Màu vàng khi ON */
 }
+.alert-box {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: #f44336; /* Màu đỏ cảnh báo */
+  color: white;
+  padding: 15px;
+  border-radius: 4px;
+  z-index: 1000; /* Đảm bảo nó luôn hiển thị ở trên */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.close-btn {
+  background-color: transparent;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+}
+.alert {
+  position: fixed;
+  bottom: 20px;
+  right: 20px; 
+  background-color: #e0e0e0;
+  color: #721c24;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

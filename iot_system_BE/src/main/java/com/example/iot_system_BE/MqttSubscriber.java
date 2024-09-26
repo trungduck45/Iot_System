@@ -51,7 +51,7 @@ public class MqttSubscriber implements MqttCallback {
             }
 
             client.subscribe("environmental/data");
-            client.subscribe("device/action"); // Đăng ký các topic cần lắng nghe
+            client.subscribe("device/action/status"); // Đăng ký các topic cần lắng nghe
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -78,7 +78,7 @@ public class MqttSubscriber implements MqttCallback {
             System.out.println("enviroment");
             saveEnvironmentalData(payload);
             
-        } else if (topic.equals("device/action")) {
+        } else if (topic.equals("device/action/status")) {
             saveDeviceAction(payload);
             System.out.println("device");
         }

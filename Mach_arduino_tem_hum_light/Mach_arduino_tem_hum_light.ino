@@ -4,11 +4,11 @@
 #include <AsyncMqttClient.h>
 #include <ArduinoJson.h>
 
-#define WIFI_SSID "An Nhien"
-#define WIFI_PASSWORD "999999999"
+#define WIFI_SSID "An Nhien" // "iPhone"
+#define WIFI_PASSWORD "999999999" // "khongcomatkhau"
 
 // Raspberri Pi Mosquitto MQTT Broker
-#define MQTT_HOST IPAddress(192, 168, 1,2)
+#define MQTT_HOST IPAddress(192,168,1,2) //(172, 20, 10,2)
 #define MQTT_PORT 1883
 
 // Topic cho dữ liệu sensor
@@ -25,8 +25,6 @@
 #define Fan_PIN 12  // Thay đổi theo chân thực tế
 #define Led1_PIN 13  // Thay đổi theo chân thực tế
 #define Led2_PIN 15  // Thay đổi theo chân thực tế
-
-#define TempCheck_LED_PIN 16  // Chân GPIO cho LED kiểm tra nhiệt độ
 
 // Uncomment whatever DHT sensor type you're using
 #define DHTTYPE DHT11  // DHT 11
@@ -97,54 +95,53 @@ void onMqttPublish(uint16_t packetId) {
   Serial.println(packetId);
 }
 
-// Callback function for handling MQTT messages
+// Publish the device state to MQTT
+void publishDeviceState(const char* device, const char* state) {
+  String message = String(device) + "," + String(state);
+  mqttClient.publish("device/action/status", 1, true, message.c_str());
+  Serial.printf("Published: %s\n", message.c_str());
+}
+
+
 void onMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t length, size_t index, size_t total) {
   Serial.println("Message arrived [" + String(topic) + "]");
 
-  // Chuyển đổi payload thành chuỗi
-  String message(payload);
-  
-  // Loại bỏ ký tự không mong muốn
-  message.trim();
-  Serial.println("Raw Message: " + message);
+  String message = String(payload).substring(0, length);
 
-  // Kiểm tra và tách chuỗi tin nhắn thành các phần
+
+  Serial.print("Raw Message: "+message);
+ 
   int commaIndex = message.indexOf(',');
   if (commaIndex != -1) {
     String device = message.substring(0, commaIndex);
     String status = message.substring(commaIndex + 1);
-    
-    // Chỉ lấy hai ký tự đầu tiên của status
-    if (status.length() > 2) {
-      status = status.substring(0, 2);
-    }
-
-    // Loại bỏ các ký tự không mong muốn nếu có
-    device.trim();
-    status.trim();
 
     Serial.println("Device: " + device);
     Serial.println("Status: " + status);
 
-    // Điều khiển LED dựa trên tin nhắn
+    // Điều khiển thiết bị dựa trên tin nhắn
     if (device == "Fan") {
-
       digitalWrite(Fan_PIN, status == "On" ? HIGH : LOW);
       Serial.println("Fan set to " + status);
+      publishDeviceState("Fan", status.c_str());
 
     } else if (device == "Led-1") {
-
       digitalWrite(Led1_PIN, status == "On" ? HIGH : LOW);
       Serial.println("Led-1 set to " + status);
+      publishDeviceState("Led-1", status.c_str());
 
     } else if (device == "Led-2") {
-
       digitalWrite(Led2_PIN, status == "On" ? HIGH : LOW);
       Serial.println("Led-2 set to " + status);
-      
-    } else {
-      Serial.println("Unknown device: " + device);
-    }
+      publishDeviceState("Led-2", status.c_str());
+
+    } else if (device == "ALL") {
+      digitalWrite(Fan_PIN, status == "On" ? HIGH : LOW);
+      digitalWrite(Led1_PIN, status == "On" ? HIGH : LOW);
+      digitalWrite(Led2_PIN, status == "On" ? HIGH : LOW);
+      Serial.println("All devices set to " + status);
+      publishDeviceState("ALL", status.c_str());
+    } 
   } else {
     Serial.println("Invalid message format");
   }
@@ -161,7 +158,7 @@ void setup() {
   mqttClient.onConnect(onMqttConnect);
   mqttClient.onDisconnect(onMqttDisconnect);
   mqttClient.onPublish(onMqttPublish);
-  mqttClient.onMessage(onMessage);  // Đăng ký callback xử lý tin nhắn
+  mqttClient.onMessage(onMessage);  
 
   mqttClient.setServer(MQTT_HOST, MQTT_PORT);
   mqttClient.setCredentials(MQTT_USERNAME, MQTT_PASSWORD);
@@ -169,7 +166,6 @@ void setup() {
   pinMode(Fan_PIN, OUTPUT);
   pinMode(Led1_PIN, OUTPUT);
   pinMode(Led2_PIN, OUTPUT);
-  pinMode(TempCheck_LED_PIN, OUTPUT);
 
   connectToWifi();
 }
@@ -188,7 +184,7 @@ void loop() {
     float roundedHum = round(hum * 10) / 10.0;
 
     // Tạo đối tượng JSON
-    String jsonString = String(roundedTemp) + "," + String(roundedHum) + "," + String(light) ;
+    String jsonString = String(roundedTemp) + "," + String(roundedHum) + "," + String(light);
 
     // In các giá trị nhiệt độ và độ ẩm ra màn hình Serial
     Serial.print("Nhiệt độ: ");
@@ -200,23 +196,5 @@ void loop() {
     uint16_t packetId = mqttClient.publish(MQTT_PUB_SENSOR, 1, true, jsonString.c_str());
     Serial.printf("Đang xuất bản trên chủ đề %s với QoS 1, packetId %i: ", MQTT_PUB_SENSOR, packetId);
     Serial.printf("Tin nhắn: %s \n", jsonString.c_str());
-  }
-
-  // Kiểm tra nhiệt độ và điều khiển LED nhấp nháy
-  if (temp >= 31) {
-    unsigned long blinkCurrentMillis = millis();
-    if (blinkCurrentMillis - blinkPreviousMillis >= blinkInterval) {
-      blinkPreviousMillis = blinkCurrentMillis;
-      // Toggle LED
-      int ledState = digitalRead(TempCheck_LED_PIN);
-      digitalWrite(TempCheck_LED_PIN, ledState == LOW ? HIGH : LOW);
-    }
-    isBlinking = true;
-  } else {
-    if (isBlinking) {
-      // Tắt LED khi nhiệt độ < 31°C
-      digitalWrite(TempCheck_LED_PIN, LOW);
-      isBlinking = false;
-    }
   }
 }
