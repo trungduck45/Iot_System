@@ -84,7 +84,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
 
-    const filteredData = statisticsData.filter((_, index) => index % 15 === 0);
+    const filteredData = statisticsData.slice(-12);
 
     this.multi = [
       {
