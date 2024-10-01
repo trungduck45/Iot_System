@@ -5,6 +5,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { AppService } from '../app.service';
 
 import { DatePipe } from '@angular/common';
+import { IMqttMessage, MqttService } from 'ngx-mqtt';
 @Component({
   selector: 'app-history',
   standalone: true,
@@ -24,21 +25,48 @@ export class HistoryComponent implements OnInit {
   DeviceAction: any[] = [];
 
   
-  sortOrder: 'asc' | 'desc' = 'asc'; // Biến lưu thứ tự sắp xếp
+  sortOrder: 'asc' | 'desc' = 'desc'; // Biến lưu thứ tự sắp xếp
+private subscription: any;
+  constructor(private appService: AppService,
+    private mqttService: MqttService
+  ) { }
 
-  constructor(private appService: AppService) { }
-
+  
   ngOnInit(): void {
+    this.mqttService.connect(); // Kết nối lại nếu cần
+    // Lắng nghe sự kiện khi kết nối thành công
+    this.mqttService.onConnect.subscribe(() => {
+      console.log('Kết nối MQTT thành công');
+      // Đăng ký nhận dữ liệu từ topic
+      this.subscribeToTopic();
+    });
+
+    // Lắng nghe sự kiện khi không kết nối được
+    this.mqttService.onError.subscribe((error) => {
+      console.error('Lỗi kết nối MQTT:', error);
+    });
     this.loadData();
+  }
+
+  subscribeToTopic(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+    this.subscription = this.mqttService
+      .observe('device/action/callback')
+      .subscribe((message: IMqttMessage) => {
+        const payload = message.payload.toString();
+        console.log('Tin nhắn nhận được:', payload); // In ra thông điệp nhận được
+        const [device,action] = payload.split(',').map(Number);
+        this.loadData();
+      });
   }
 
   loadData() : void{
     this.appService.getAllDeviceAction().subscribe({
       next: (data) => {
-        
         this.DeviceAction = data;
-        this.filteredData = this.DeviceAction;
-
+        this.filteredData = this.DeviceAction.reverse();
         console.log('Received device action:', data);
       },
       error: (error) => {

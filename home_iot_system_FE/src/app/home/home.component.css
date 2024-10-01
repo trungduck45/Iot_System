@@ -448,3 +448,53 @@ input:checked+.slider:before {
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+.alert-smoke {
+  position: fixed;
+  bottom: 20px;
+  left: 20px; 
+  background-color: #e0e0e0;
+  color: #721c24;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.blink {
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+.smoke-danger {
+  background-color: red;
+}
+
+.smoke-warning {
+  background-color: orange;
+}
+
+.smoke-normal {
+  background-color: yellow;
+}
+
+.smoke-low {
+  background-color: green;
+}
+
+.progress-container {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  background-color: #ddd; /* Màu nền của thanh tiến trình */
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(to left, #4caf50, #ffeb3b, #f44336); /* Gradient với nhiều màu */
+  width: 100%;
+  transition: width 0.1s linear;
+}

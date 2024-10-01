@@ -1,9 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgxChartsModule, Color, ScaleType, LegendPosition } from '@swimlane/ngx-charts';
+import {
+  NgxChartsModule,
+  Color,
+  ScaleType,
+  LegendPosition,
+} from '@swimlane/ngx-charts';
 import { AppService } from '../app.service';
-import { HttpClient } from '@angular/common/http';
-
+import { Subscription } from 'rxjs';
+import { MqttService, IMqttMessage } from 'ngx-mqtt';
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -15,12 +20,38 @@ export class HomeComponent implements OnInit, OnDestroy {
   temperature: any;
   humidity: any;
   light: any;
-  
-  showAlert: boolean = false;
+  smoke: any;
 
+  progressBarWidth: number = 100;
+
+  showAlert: boolean = false;
+  private subscription: Subscription | undefined;
+
+  isFanOn: boolean = false;
+  isLED1On: boolean = false;
+  isLED2On: boolean = false;
+
+  isAlertVisible: boolean = false;
+  isAlertSomke: boolean = false;
+  alertMessage: string = '';
+  alertMessageSmoke: string = '';
+  pendingCommands = new Set<string>();
+
+   // Biến để đếm số lần bật quạt và số lần khói >= 80
+   fanOnCount: number = 0;
+   smokeHighCount: number = 0;
+  valuesHistory: {
+    temperature: number;
+    humidity: number;
+    light: number;
+    smoke: number;
+    time: string;
+  }[] = [];
+
+  smokeData: any[] = [];
   constructor(
     private appService: AppService,
-    private http: HttpClient
+    private mqttService: MqttService
   ) {}
 
   legendPosition: LegendPosition = LegendPosition.Right;
@@ -37,23 +68,181 @@ export class HomeComponent implements OnInit, OnDestroy {
     name: 'lightScheme',
     selectable: true,
     group: ScaleType.Ordinal,
-    domain: ['#FFD700'], // Yellow color for the light chart
+    domain: ['#FFD700'],
   };
 
   fullStatisticsData: any[] = [];
   saveData: any[] = [];
 
   ngOnInit(): void {
-    this.loadChartData();
+    this.restoreDeviceStates();
+
+    this.mqttService.connect();
+
+    this.mqttService.onConnect.subscribe(() => {
+      console.log('Kết nối MQTT thành công');
+      this.subscribeToTopic();
+    });
+
+    this.mqttService.onError.subscribe((error) => {
+      console.error('Lỗi kết nối MQTT:', error);
+    });
+
+    this.mqttService
+      .observe('device/action/callback')
+      .subscribe((message: any) => {
+        const payload = message.payload.toString();
+        this.handleMQTTMessage(payload);
+        console.log('Received device/action/callback + message:', payload);
+      });
+    this.loadInitialData();
+  //  this.loadChartData();
   }
 
-  ngOnDestroy(): void {}
+  subscribeToTopic(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+    this.subscription = this.mqttService
+      .observe('environmental/data')
+      .subscribe((message: IMqttMessage) => {
+        const payload = message.payload.toString();
+        console.log('Tin nhắn nhận được1:', payload); // In ra thông điệp nhận được
+        const [temp, hum, light, smoke] = payload.split(',').map(Number);
+
+        this.temperature = temp;
+        this.humidity = hum;
+        this.light = light;
+        this.smoke = smoke;
+        this.loadChartData();
+        
+        if (this.smoke >= 80) {
+          if(this.isFanOn == false) {
+          this.toggleFan(true); 
+          this.showAlertSmoke('Cảnh báo: Mức khói cao! Quạt đang được bật...');
+          }
+        } 
+        else if (this.smoke < 50) {
+          if(this.isFanOn == true) {
+          this.toggleFan(false); 
+          this.showAlertSmoke('Mức khói giảm, Quạt đang được tắt.');
+          }
+        }
+       
+
+      });
+  }
+
+  
+  handleMQTTMessage(payload: string): void {
+    const [device, state] = payload.split(',');
+    const isOn = state === 'On';
+
+    switch (device) {
+      case 'Fan':
+        this.isFanOn = isOn;
+        localStorage.setItem('Fan', isOn ? 'On' : 'Off'); // Lưu trạng thái Fan
+        this.pendingCommands.delete('Fan');
+        break;
+      case 'Led-1':
+        this.isLED1On = isOn;
+        localStorage.setItem('Led-1', isOn ? 'On' : 'Off'); // Lưu trạng thái LED-1
+        this.pendingCommands.delete('Led-1');
+        break;
+      case 'Led-2':
+        this.isLED2On = isOn;
+        localStorage.setItem('Led-2', isOn ? 'On' : 'Off'); // Lưu trạng thái LED-2
+        this.pendingCommands.delete('Led-2');
+        break;
+    }
+   // this.showAlertDevice(` ${device} is turning ${state}`);
+  }
+
+  restoreDeviceStates(): void {
+    this.isFanOn = localStorage.getItem('Fan') === 'On';
+    this.isLED1On = localStorage.getItem('Led-1') === 'On';
+    this.isLED2On = localStorage.getItem('Led-2') === 'On';
+  }
+
+  toggleFan(turnOn: boolean): void {
+    if (this.pendingCommands.has('Fan')) return; // Đã có lệnh đang chờ, bỏ qua
+    this.pendingCommands.add('Fan');
+    const command = `Fan,${turnOn ? 'On' : 'Off'}`;
+    this.publishCommand(command);
+    this.showAlertDevice(` Fan is turning ${turnOn ? 'On' : 'Off'}`);
+  }
+
+  toggleLED1(turnOn: boolean): void {
+    if (this.pendingCommands.has('Led-1')) return;
+    this.pendingCommands.add('Led-1');
+    const command = `Led-1,${turnOn ? 'On' : 'Off'}`;
+    this.publishCommand(command);
+    this.showAlertDevice(` Led-1 is turning ${turnOn ? 'On' : 'Off'}`);
+  }
+
+  toggleLED2(turnOn: boolean): void {
+    if (this.pendingCommands.has('Led-2')) return;
+    this.pendingCommands.add('Led-2');
+    const command = `Led-2,${turnOn ? 'On' : 'Off'}`;
+    this.publishCommand(command);
+    this.showAlertDevice(` Led-2 is turning ${turnOn ? 'On' : 'Off'}`);
+  }
+
+  publishCommand(command: string): void {
+    this.mqttService.unsafePublish('device/action', command);
+    console.log('Published "device/action "+ command:', command);
+   // this.showAlertDevice(`Published: ${command}`);
+  }
+
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+
+  loadInitialData(): void {
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 0, 0, 0);
+
+    // console.log("Start of Day:", startOfDay);
+    // console.log("End of Day:", endOfDay);s
+    this.appService.getAllEnvironmentalData().subscribe({
+        next: (data) => {
+            this.smokeData = data.filter(item => 
+                item.smoke >= 80 && 
+                new Date(item.time) >= startOfDay && 
+                new Date(item.time) < endOfDay
+            );
+            if (this.smokeData.length > 0) {
+                this.smoke = this.smokeData[this.smokeData.length - 1].smoke; 
+            }
+        },
+        error: (error) => {
+            console.error('Lỗi khi lấy dữ liệu khói:', error);
+        },
+    });
+
+    
+    this.appService.getAllDeviceAction().subscribe({
+        next: (deviceActions) => {
+            this.fanOnCount = deviceActions.filter(action => 
+                action.device === 'Fan' && 
+                action.action === 'On' && 
+                new Date(action.time) >= startOfDay && 
+                new Date(action.time) < endOfDay
+            ).length;
+        },
+        error: (error) => {
+            console.error('Lỗi khi lấy số lần bật quạt:', error);
+        },
+    });
+}
 
   loadChartData(): void {
     console.log('Loading chart data...');
     this.appService.getAllEnvironmentalData().subscribe({
       next: (data) => {
-        console.log('Data loaded:', data);
         this.fullStatisticsData = data;
         this.updateCharts();
       },
@@ -64,13 +253,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   updateCharts(): void {
-    console.log('Updating charts...');
-    this.fullStatisticsData = this.fullStatisticsData.reverse();
-    this.temperature = this.fullStatisticsData[0].temperature;
-    this.humidity = this.fullStatisticsData[0].humidity;
-    this.light = this.fullStatisticsData[0].light;
-
-    const statisticsData = this.fullStatisticsData.reverse();
+    if (!this.fullStatisticsData || this.fullStatisticsData.length === 0) {
+      console.error('No data available to update charts.');
+      return;
+    }
 
     const formatDateTime = (time: string) => {
       const date = new Date(time);
@@ -84,7 +270,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
 
-    const filteredData = statisticsData.slice(-12);
+    const filteredData = this.fullStatisticsData.slice(-15);
 
     this.multi = [
       {
@@ -101,6 +287,13 @@ export class HomeComponent implements OnInit, OnDestroy {
           value: data.humidity,
         })),
       },
+      {
+        name: 'Smoke',
+        series: filteredData.map((data) => ({
+          name: formatDateTime(data.time),
+          value: data.smoke,
+        })),
+      },
     ];
 
     this.lightChartData = [
@@ -113,122 +306,90 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
     ];
 
-    if (this.light < 300) {
+    if (this.light > 400) {
       this.showAlert = true;
     }
     console.log('Charts updated.');
   }
 
   getTemperatureColor() {
-    if (this.temperature < 15) {
-      return 'Tmuc1';
-    } else if (this.temperature >= 15 && this.temperature < 22) {
-      return 'Tmuc2';
-    } else if (this.temperature >= 22 && this.temperature < 27) {
-      return 'Tmuc3';
-    } else if (this.temperature >= 27 && this.temperature < 32) {
-      return 'Tmuc4';
-    } else if (this.temperature >= 32 && this.temperature < 35) {
-      return 'Tmuc5';
-    } else if (this.temperature >= 35 && this.temperature <= 42) {
-      return 'Tmuc6';
-    } else {
-      return 'Tmuc7';
-    }
+    return this.temperature < 15
+      ? 'Tmuc1'
+      : this.temperature < 22
+      ? 'Tmuc2'
+      : this.temperature < 27
+      ? 'Tmuc3'
+      : this.temperature < 32
+      ? 'Tmuc4'
+      : this.temperature < 35
+      ? 'Tmuc5'
+      : this.temperature <= 42
+      ? 'Tmuc6'
+      : 'Tmuc7';
   }
 
   getHumidityColor() {
-    if (this.humidity < 15) {
-      return 'Hmuc1';
-    } else if (this.humidity >= 15 && this.humidity < 45) {
-      return 'Hmuc2';
-    } else if (this.humidity >= 45 && this.humidity < 70) {
-      return 'Hmuc3';
-    } else if (this.humidity >= 70 && this.humidity < 90) {
-      return 'Hmuc4';
-    } else {
-      return 'Hmuc5';
-    }
+    return this.humidity < 15
+      ? 'Hmuc1'
+      : this.humidity < 45
+      ? 'Hmuc2'
+      : this.humidity < 70
+      ? 'Hmuc3'
+      : this.humidity < 90
+      ? 'Hmuc4'
+      : 'Hmuc5';
   }
 
   getLightColor() {
-    if (this.light < 100) {
-      return 'Lmuc6';
-    } else if (this.light >= 100&& this.light < 200) {
-      return 'Lmuc5';
-    } else if (this.light >= 200 && this.light < 400) {
-      return 'Lmuc4';
-    } else if (this.light >= 400 && this.light < 600) {
-      return 'Lmuc3';
-    } else if (this.light >= 600 && this.light < 800) {
-      return 'Lmuc2';
+    return this.light < 50
+      ? 'Lmuc1'
+      : this.light < 100
+      ? 'Lmuc2'
+      : this.light < 200
+      ? 'Lmuc3'
+      : this.light < 300
+      ? 'Lmuc4'
+      : this.light < 400
+      ? 'Lmuc5'
+      : 'Lmuc6';
+  }
+  getSmokeColor(): string {
+    if (this.smoke >= 80) {
+      return 'smoke-danger'; 
+    } else if (this.smoke >= 60) {
+      return 'smoke-warning'; 
+    } else if (this.smoke >= 30) {
+      return 'smoke-normal'; 
     } else {
-      return 'Lmuc1';
+      return 'smoke-low'; 
     }
   }
+  
 
-  isFanOn: boolean = false;
-  isLED1On: boolean = false;
-  isLED2On: boolean = false;
-  isAlertVisible: boolean = false;
-  alertMessage: string = '';
   showAlertDevice(message: string) {
     this.alertMessage = message;
     this.isAlertVisible = true;
-  
-    // Ẩn thông báo sau 2 giây
+    this.progressBarWidth = 100;  // Thanh tiến trình bắt đầu từ 100%
+
+  const interval = setInterval(() => {
+    this.progressBarWidth -= 2;  // Giảm chiều rộng thanh tiến trình
+    if (this.progressBarWidth <= 0) {
+      clearInterval(interval);
+    }
+  }, 60);  // Cứ 100ms giảm chiều rộng 2%
     setTimeout(() => {
       this.isAlertVisible = false;
-    }, 2000);
+    }, 3000);
   }
-  async toggleFan(state: boolean): Promise<void> {
-    if (state === this.isFanOn) return; // Nếu trạng thái không thay đổi, không làm gì cả
-    setTimeout(() => {
-      this.isFanOn = state;
-    }, 1000); // Cập nhật trạng thái trước khi gửi lệnh
-    this.showAlertDevice(`Fan is turning ${state ? 'On' : 'Off'}`);
-    this.appService.sendCommandToBackend('Fan', state).subscribe({
-      next: (response) => {
-      console.log('ok');
-      },
-      error: (error) => console.error('Error toggling Fan:', error)
-    });
-
-  }
-  
-  toggleLED1(state: boolean): void {
-    if (state === this.isLED1On) return; // Nếu trạng thái không thay đổi, không làm gì cả
-    setTimeout(() => {
-      this.isLED1On = state;
-    }, 1000); // Cập nhật trạng thái sau khi gửi lệnh
-    this.showAlertDevice(`LED1 is turning ${state ? 'On' : 'Off'}`);
-    this.appService.sendCommandToBackend('Led-1', state).subscribe({
-      next: (response) => {
-        console.log('ok');
-      },
-      error: (error) => console.error('Error toggling LED1:', error)
-    });
-  }
-  
-  toggleLED2(state: boolean): void {
-
-    if (state === this.isLED2On) return; // Nếu trạng thái không thay đổi, không làm gì cả
+  showAlertSmoke(message: string) {
+    this.alertMessageSmoke = message;
+    this.isAlertSomke = true;
 
     setTimeout(() => {
-      this.isLED2On = state;
-    }, 1000); // Cập nhật trạng thái sau khi gửi lệnh
-
-    this.showAlertDevice(`LED2 is turning ${state ? 'On' : 'Off'}`);
-
-    this.appService.sendCommandToBackend('Led-2', state).subscribe({
-      next: (response) => {
-        console.log('ok');
-      },
-      error: (error) => console.error('Error toggling LED2:', error)
-    });
-    
+      this.isAlertSomke = false;
+    }, 3000);
   }
-  
+
   closeAlert(): void {
     this.showAlert = false;
   }

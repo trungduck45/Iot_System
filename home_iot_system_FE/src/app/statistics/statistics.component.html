@@ -9,18 +9,18 @@
       <option value="humidity">Humidity</option>
       <option value="light">Light</option>
     </select>
-  
+
     <input type="text" placeholder="Search..." [(ngModel)]="searchTerm" (ngModelChange)="search()" />
     <button (click)="search()">
       <i class="fa fa-search"></i> <!-- Search icon -->
     </button>
   </div>
-  
+
 
   <!-- Dòng "Show rows" và box chọn số lượng giá trị hiển thị -->
-  
+
   <table>
-    <thead> 
+    <thead>
       <tr>
         <th (click)="sortById()">
           ID
@@ -32,6 +32,7 @@
         <th>Temperature</th>
         <th>Humidity</th>
         <th>Light</th>
+        <th>Smoke</th>
         <th>Time</th>
       </tr>
     </thead>
@@ -41,6 +42,7 @@
         <td>{{ item.temperature }}°C</td>
         <td>{{ item.humidity }}%</td>
         <td>{{ item.light }} lux</td>
+        <td>{{item.smoke}}</td>
         <td>{{ item.time | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
 
       </tr>

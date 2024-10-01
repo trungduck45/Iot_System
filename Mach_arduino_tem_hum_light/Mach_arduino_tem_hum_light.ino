@@ -23,8 +23,8 @@
 
 // Khai báo chân GPIO cho LED
 #define Fan_PIN 12  // Thay đổi theo chân thực tế
-#define Led1_PIN 13  // Thay đổi theo chân thực tế
-#define Led2_PIN 15  // Thay đổi theo chân thực tế
+#define Led1_PIN 4  // Thay đổi theo chân thực tế
+#define Led2_PIN 5  // Thay đổi theo chân thực tế
 
 // Uncomment whatever DHT sensor type you're using
 #define DHTTYPE DHT11  // DHT 11
@@ -35,7 +35,7 @@ DHT dht(DHTPIN, DHTTYPE);
 // Variables to hold sensor readings
 float temp;
 float hum;
-int light;  // Thay đổi biến để lưu giá trị ánh sáng thành float
+float light;  
 
 AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
@@ -44,7 +44,7 @@ WiFiEventHandler wifiDisconnectHandler;
 Ticker wifiReconnectTimer;
 
 unsigned long previousMillis = 0;  // Stores last time temperature was published
-const long interval = 10000;       // Interval at which to publish sensor readings
+const long interval = 5000;       // Interval at which to publish sensor readings
 
 #define MQTT_USERNAME "trungduc"
 #define MQTT_PASSWORD "trungduc"
@@ -98,7 +98,7 @@ void onMqttPublish(uint16_t packetId) {
 // Publish the device state to MQTT
 void publishDeviceState(const char* device, const char* state) {
   String message = String(device) + "," + String(state);
-  mqttClient.publish("device/action/status", 1, true, message.c_str());
+  mqttClient.publish("device/action/callback", 1, true, message.c_str());
   Serial.printf("Published: %s\n", message.c_str());
 }
 
@@ -123,24 +123,21 @@ void onMessage(char* topic, char* payload, AsyncMqttClientMessageProperties prop
     if (device == "Fan") {
       digitalWrite(Fan_PIN, status == "On" ? HIGH : LOW);
       Serial.println("Fan set to " + status);
+      delay(1000);
       publishDeviceState("Fan", status.c_str());
 
     } else if (device == "Led-1") {
       digitalWrite(Led1_PIN, status == "On" ? HIGH : LOW);
       Serial.println("Led-1 set to " + status);
+      delay(1000);
       publishDeviceState("Led-1", status.c_str());
 
     } else if (device == "Led-2") {
       digitalWrite(Led2_PIN, status == "On" ? HIGH : LOW);
       Serial.println("Led-2 set to " + status);
+      delay(1000);
       publishDeviceState("Led-2", status.c_str());
 
-    } else if (device == "ALL") {
-      digitalWrite(Fan_PIN, status == "On" ? HIGH : LOW);
-      digitalWrite(Led1_PIN, status == "On" ? HIGH : LOW);
-      digitalWrite(Led2_PIN, status == "On" ? HIGH : LOW);
-      Serial.println("All devices set to " + status);
-      publishDeviceState("ALL", status.c_str());
     } 
   } else {
     Serial.println("Invalid message format");
@@ -169,7 +166,6 @@ void setup() {
 
   connectToWifi();
 }
-
 void loop() {
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
@@ -177,24 +173,37 @@ void loop() {
     
     hum = dht.readHumidity();
     temp = dht.readTemperature();
-    light = analogRead(LIGHT_SENSOR_PIN);  // Đọc giá trị từ cảm biến ánh sáng
+    int analogValue = analogRead(A0);  // Đọc giá trị từ chân analog (A0)
+    float voltage = (analogValue / 1023.0) * 3.3;  // Chuyển đổi giá trị analog thành điện áp
+
+    // Chuyển đổi giá trị analog thành Lux từ 500 đến 0
+    float lux = 500 - (analogValue / 1023.0) * 500;
+
+
+    int light = lux;  // Đọc giá trị từ cảm biến ánh sáng
 
     // Làm tròn nhiệt độ và độ ẩm đến 1 chữ số sau dấu thập phân
     float roundedTemp = round(temp * 10) / 10.0;
     float roundedHum = round(hum * 10) / 10.0;
 
+    // Tạo giá trị ngẫu nhiên cho độ bụi từ 30 đến 100
+    int dustLevel = random(30, 101); // random(30, 101) trả về số ngẫu nhiên từ 30 đến 100
+
     // Tạo đối tượng JSON
-    String jsonString = String(roundedTemp) + "," + String(roundedHum) + "," + String(light);
+    String jsonString = String(roundedTemp) + "," + String(roundedHum) + "," + String(light) + "," + String(dustLevel);
 
     // In các giá trị nhiệt độ và độ ẩm ra màn hình Serial
     Serial.print("Nhiệt độ: ");
     Serial.print(roundedTemp);
     Serial.print(" °C, Độ ẩm: ");
     Serial.print(roundedHum);
-    Serial.println(" %");
+    Serial.print(" %, Độ bụi: ");
+    Serial.print(dustLevel);
+    Serial.println(" ");
 
     uint16_t packetId = mqttClient.publish(MQTT_PUB_SENSOR, 1, true, jsonString.c_str());
     Serial.printf("Đang xuất bản trên chủ đề %s với QoS 1, packetId %i: ", MQTT_PUB_SENSOR, packetId);
     Serial.printf("Tin nhắn: %s \n", jsonString.c_str());
   }
 }
+

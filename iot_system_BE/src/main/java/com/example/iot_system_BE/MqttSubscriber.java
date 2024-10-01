@@ -51,7 +51,7 @@ public class MqttSubscriber implements MqttCallback {
             }
 
             client.subscribe("environmental/data");
-            client.subscribe("device/action/status"); // Đăng ký các topic cần lắng nghe
+            client.subscribe("device/action/callback"); // Đăng ký các topic cần lắng nghe
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -78,7 +78,7 @@ public class MqttSubscriber implements MqttCallback {
             System.out.println("enviroment");
             saveEnvironmentalData(payload);
             
-        } else if (topic.equals("device/action/status")) {
+        } else if (topic.equals("device/action/callback")) {
             saveDeviceAction(payload);
             System.out.println("device");
         }
@@ -97,7 +97,7 @@ public class MqttSubscriber implements MqttCallback {
             environmentalData.setTemperature(Double.parseDouble(parts[0])); // Cập nhật chỉ số đúng theo thứ tự của bạn
             environmentalData.setHumidity(Double.parseDouble(parts[1]));
             environmentalData.setLight(Double.parseDouble(parts[2]));
-
+            environmentalData.setSmoke(Double.parseDouble(parts[3]));
             // Sử dụng thời gian hiện tại
             environmentalData.setTime(LocalDateTime.now());
 

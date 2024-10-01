@@ -5,16 +5,24 @@
     Mức độ ánh sáng đang ở mức cao
     <button class="close-btn" (click)="closeAlert()">X</button>
   </div>
-  <div *ngIf="isAlertVisible" class="alert">
-    {{ alertMessage }}
+  <div *ngIf="isAlertSomke" class="alert-smoke">
+    {{ alertMessageSmoke }}
   </div>
+  
+  <div *ngIf="isAlertVisible" class="alert">
+    <p>{{ alertMessage }}</p>
+    <div class="progress-container">
+      <div class="progress-bar" [ngStyle]="{ width: progressBarWidth + '%' }"></div>
+    </div>
+  </div>
+  
   <div >
     <!-- Hàng 1 -->
     <div class="row">
       <div class="col" [ngClass]="getTemperatureColor()">
         <div style="display: flex; align-items: center;">
           <img src=".\assect\temperature.png" alt="Temperature Image"
-            style="width: 40px; height: 40px; margin-right: 10px;" /> <!-- Adjust the path and size as needed -->
+            style="width: 40px; height: 40px; margin-right: 10px;" /> 
           <div>
             <h2 style="margin: 0; ">
               Temperature
@@ -29,7 +37,7 @@
         <div style="display: flex; align-items: center;">
           <img src=".\assect\humidity.png" alt="Humidity Image"
             style="width: 40px; height: 40px; margin-right: 10px;" />
-          <!-- Adjust the path and size as needed -->
+        
           <div>
             <h2 style="margin: 0;">
               Humidity
@@ -42,12 +50,24 @@
       <div class="col" [ngClass]="getLightColor()">
         <div style="display: flex; align-items: center;">
           <img src=".\assect\sunny.png" alt="Light Image" style="width: 40px; height: 40px; margin-right: 10px;" />
-          <!-- Adjust the path and size as needed -->
+
           <div>
             <h2 style="margin: 0;">
               Light
             </h2>
             <p style="margin: 0;">{{ light }} Lux</p>
+          </div>
+        </div>
+      </div>
+      <div class="col" [ngClass]="[getSmokeColor(), smoke >= 80 ? 'blink' : '']">
+        <div style="display: flex; align-items: center;">
+          <img src=".\assect\dust.png" alt="Smoke Image" style="width: 40px; height: 40px; margin-right: 10px;" />
+          <!-- Adjust the path and size as needed -->
+          <div>
+            <h2 style="margin: 0;">
+              Smoke
+            </h2>
+            <p style="margin: 0;">{{ smoke }} </p>
           </div>
         </div>
       </div>
@@ -76,7 +96,7 @@
             <h2>Light</h2>
             <ngx-charts-line-chart [view]="[440, 440]" [scheme]="lightColorScheme" [results]="lightChartData"
               [xAxis]="true" [yAxis]="true" [legend]="true" [legendPosition]="legendPosition" [showXAxisLabel]="true"
-              [showYAxisLabel]="true" [yScaleMin]="0" [yScaleMax]="1000" [autoScale]="false"
+              [showYAxisLabel]="true" [yScaleMin]="0" [yScaleMax]="500" [autoScale]="false"
                [xAxisLabel]="'Date Time'" [yAxisLabel]="'Value'">
             </ngx-charts-line-chart>
           </div>
@@ -119,6 +139,10 @@
             <button (click)="toggleLED2(false)" [ngClass]="{'off-active': !isLED2On, 'inactive': isLED2On}">OFF</button>
           </span>
         </p>
+        <div>
+          <p>Số lần bật quạt trong ngày: {{ fanOnCount }}</p>
+          <p>Số lần khói >= 80 trong ngày: {{ smokeData.length }}</p>
+        </div>
       </div>
 
     </div>

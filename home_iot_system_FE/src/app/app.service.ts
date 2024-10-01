@@ -30,13 +30,13 @@ export class AppService {
       })
     );
   }
-  sendCommandToBackend(device: string, state: boolean): Observable<any> {
-    const url = `${this.apiUrl}/api/publish`;
-    const topic = "device/action";
-    const message = `${device},${state ? 'On' : 'Off'}`;
-    const payload = { topic, message };
-    console.log("payload: ",payload);
-    return this.http.post<any>(url, payload);
-}
+//   sendCommandToBackend(device: string, state: boolean): Observable<any> {
+//     const url = `${this.apiUrl}/api/publish`;
+//     const topic = "device/action";
+//     const message = `${device},${state ? 'On' : 'Off'}`;
+//     const payload = { topic, message };
+//     console.log("payload: ",payload);
+//     return this.http.post<any>(url, payload);
+// }
  
 }

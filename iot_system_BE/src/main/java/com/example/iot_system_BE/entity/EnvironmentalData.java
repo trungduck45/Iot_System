@@ -14,6 +14,7 @@ public class EnvironmentalData {
     private double temperature;
     private double humidity;
     private double light;
+    private double smoke;
     private LocalDateTime time;
 
     // Getter và Setter cho các thuộc tính
@@ -48,6 +49,13 @@ public class EnvironmentalData {
 
     public void setLight(double light) {
         this.light = light;
+    }
+    public double getSmoke() {
+        return smoke;
+    }
+
+    public void setSmoke(double smoke) {
+        this.smoke = smoke;
     }
 
     public LocalDateTime getTime() {
