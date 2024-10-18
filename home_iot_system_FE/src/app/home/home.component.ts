@@ -30,6 +30,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isFanOn: boolean = false;
   isLED1On: boolean = false;
   isLED2On: boolean = false;
+  isWaringLedOn: boolean = false;
 
   isAlertVisible: boolean = false;
   isAlertSomke: boolean = false;
@@ -37,18 +38,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   alertMessageSmoke: string = '';
   pendingCommands = new Set<string>();
 
-   // Biến để đếm số lần bật quạt và số lần khói >= 80
-   fanOnCount: number = 0;
-   smokeHighCount: number = 0;
-  valuesHistory: {
-    temperature: number;
-    humidity: number;
-    light: number;
-    smoke: number;
-    time: string;
-  }[] = [];
+  // Biến để đếm số lần bật quạt và số lần khói >= 80
+  led1OnCount: number = 0;
+  led1OffCount: number = 0;
 
   smokeData: any[] = [];
+  smokeOver80Count: number | undefined;
+  shouldBlink: boolean = false;
+  currentTime: string='';
+  WarningLedOn: number =0;
   constructor(
     private appService: AppService,
     private mqttService: MqttService
@@ -95,10 +93,21 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.handleMQTTMessage(payload);
         console.log('Received device/action/callback + message:', payload);
       });
-    this.loadInitialData();
-  //  this.loadChartData();
-  }
+    this.updateTime();  // Gọi khi component được khởi tạo
 
+    // Cập nhật thời gian mỗi giây
+    setInterval(() => {
+      this.updateTime();
+    }, 1000); 
+    //  this.loadChartData();
+  }
+  updateTime(): void {
+    const now = new Date();
+    const date = now.toLocaleDateString();  
+    const time = now.toLocaleTimeString();  
+  
+    this.currentTime = `${date} - ${time}`; 
+  }
   subscribeToTopic(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
@@ -115,25 +124,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.light = light;
         this.smoke = smoke;
         this.loadChartData();
-        
-        if (this.smoke >= 80) {
-          if(this.isFanOn == false) {
-          this.toggleFan(true); 
-          this.showAlertSmoke('Cảnh báo: Mức khói cao! Quạt đang được bật...');
-          }
-        } 
-        else if (this.smoke < 50) {
-          if(this.isFanOn == true) {
-          this.toggleFan(false); 
-          this.showAlertSmoke('Mức khói giảm, Quạt đang được tắt.');
-          }
-        }
-       
 
+  
+        if (this.smoke > 60) {
+          this.showAlertSmoke('Smoke quá cao');
+        }
+        
+        this.loadInitialData();
       });
   }
 
-  
   handleMQTTMessage(payload: string): void {
     const [device, state] = payload.split(',');
     const isOn = state === 'On';
@@ -154,14 +154,20 @@ export class HomeComponent implements OnInit, OnDestroy {
         localStorage.setItem('Led-2', isOn ? 'On' : 'Off'); // Lưu trạng thái LED-2
         this.pendingCommands.delete('Led-2');
         break;
+      case 'WarningLed':
+        this.isWaringLedOn = isOn;
+        localStorage.setItem('WarningLed', isOn ? 'On' : 'Off'); // Lưu trạng thái WarningLed
+        this.pendingCommands.delete('WarningLed');
+
     }
-   // this.showAlertDevice(` ${device} is turning ${state}`);
+    // this.showAlertDevice(` ${device} is turning ${state}`);
   }
 
   restoreDeviceStates(): void {
     this.isFanOn = localStorage.getItem('Fan') === 'On';
     this.isLED1On = localStorage.getItem('Led-1') === 'On';
     this.isLED2On = localStorage.getItem('Led-2') === 'On';
+    this.isWaringLedOn = localStorage.getItem('WarningLed') === 'On';
   }
 
   toggleFan(turnOn: boolean): void {
@@ -188,10 +194,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showAlertDevice(` Led-2 is turning ${turnOn ? 'On' : 'Off'}`);
   }
 
+
   publishCommand(command: string): void {
     this.mqttService.unsafePublish('device/action', command);
     console.log('Published "device/action "+ command:', command);
-   // this.showAlertDevice(`Published: ${command}`);
+    // this.showAlertDevice(`Published: ${command}`);
   }
 
   ngOnDestroy(): void {
@@ -202,42 +209,48 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadInitialData(): void {
     const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 0, 0, 0);
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(),  today.getDate(),  0,
+      0,
+      0
+    );
+    const endOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() + 1,
+      0,
+      0,
+      0
+    );
 
-    // console.log("Start of Day:", startOfDay);
-    // console.log("End of Day:", endOfDay);s
+    this.appService.getAllDeviceAction().subscribe({
+      next: (deviceActions) => {
+        this.WarningLedOn = deviceActions.filter(
+          (action) =>
+            action.device === 'WarningLed' &&
+            action.action === 'On' &&
+            new Date(action.time) >= startOfDay &&
+            new Date(action.time) < endOfDay
+        ).length;
+      },
+      error: (error) => {
+        console.error('Lỗi khi lấy số lần bật đèn CB:', error);
+      },
+    });
     this.appService.getAllEnvironmentalData().subscribe({
-        next: (data) => {
-            this.smokeData = data.filter(item => 
-                item.smoke >= 80 && 
-                new Date(item.time) >= startOfDay && 
-                new Date(item.time) < endOfDay
-            );
-            if (this.smokeData.length > 0) {
-                this.smoke = this.smokeData[this.smokeData.length - 1].smoke; 
-            }
-        },
-        error: (error) => {
-            console.error('Lỗi khi lấy dữ liệu khói:', error);
-        },
+      next: (sensorData) => {
+        this.smokeOver80Count = sensorData.filter(
+          (data) => data.smoke > 60
+        ).length;
+
+        console.log(`Số lần smoke > 60: ${this.smokeOver80Count}`);
+      },
+      error: (error) => {
+        console.error('Lỗi khi lấy dữ liệu cảm biến:', error);
+      },
     });
 
     
-    this.appService.getAllDeviceAction().subscribe({
-        next: (deviceActions) => {
-            this.fanOnCount = deviceActions.filter(action => 
-                action.device === 'Fan' && 
-                action.action === 'On' && 
-                new Date(action.time) >= startOfDay && 
-                new Date(action.time) < endOfDay
-            ).length;
-        },
-        error: (error) => {
-            console.error('Lỗi khi lấy số lần bật quạt:', error);
-        },
-    });
-}
+  }
 
   loadChartData(): void {
     console.log('Loading chart data...');
@@ -271,7 +284,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     const filteredData = this.fullStatisticsData.slice(-15);
-
+    console.log('Filtered data:', filteredData);
     this.multi = [
       {
         name: 'Temperature',
@@ -288,6 +301,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         })),
       },
       {
+        name: 'Light',
+        series: filteredData.map((data) => ({
+          name: formatDateTime(data.time),
+          value: data.light,
+        })),
+      },
+      {
         name: 'Smoke',
         series: filteredData.map((data) => ({
           name: formatDateTime(data.time),
@@ -298,18 +318,18 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.lightChartData = [
       {
-        name: 'Light',
+        name: 'Smoke',
         series: filteredData.map((data) => ({
           name: formatDateTime(data.time),
-          value: data.light,
+          value: data.smoke,
         })),
       },
     ];
 
-    if (this.light > 400) {
-      this.showAlert = true;
-    }
-    console.log('Charts updated.');
+    // if (this.light > 400) {
+    //   this.showAlert = true;
+    // }
+    //console.log('Charts updated.');
   }
 
   getTemperatureColor() {
@@ -355,28 +375,27 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
   getSmokeColor(): string {
     if (this.smoke >= 80) {
-      return 'smoke-danger'; 
+      return 'smoke-danger';
     } else if (this.smoke >= 60) {
-      return 'smoke-warning'; 
+      return 'smoke-warning';
     } else if (this.smoke >= 30) {
-      return 'smoke-normal'; 
+      return 'smoke-normal';
     } else {
-      return 'smoke-low'; 
+      return 'smoke-low';
     }
   }
-  
 
   showAlertDevice(message: string) {
     this.alertMessage = message;
     this.isAlertVisible = true;
-    this.progressBarWidth = 100;  // Thanh tiến trình bắt đầu từ 100%
+    this.progressBarWidth = 100; // Thanh tiến trình bắt đầu từ 100%
 
-  const interval = setInterval(() => {
-    this.progressBarWidth -= 2;  // Giảm chiều rộng thanh tiến trình
-    if (this.progressBarWidth <= 0) {
-      clearInterval(interval);
-    }
-  }, 60);  // Cứ 100ms giảm chiều rộng 2%
+    const interval = setInterval(() => {
+      this.progressBarWidth -= 2; // Giảm chiều rộng thanh tiến trình
+      if (this.progressBarWidth <= 0) {
+        clearInterval(interval);
+      }
+    }, 60); // Cứ 100ms giảm chiều rộng 2%
     setTimeout(() => {
       this.isAlertVisible = false;
     }, 3000);

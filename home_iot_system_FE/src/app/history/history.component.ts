@@ -6,6 +6,7 @@ import { AppService } from '../app.service';
 
 import { DatePipe } from '@angular/common';
 import { IMqttMessage, MqttService } from 'ngx-mqtt';
+import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-history',
   standalone: true,
@@ -28,7 +29,8 @@ export class HistoryComponent implements OnInit {
   sortOrder: 'asc' | 'desc' = 'desc'; // Biến lưu thứ tự sắp xếp
 private subscription: any;
   constructor(private appService: AppService,
-    private mqttService: MqttService
+    private mqttService: MqttService,
+    private http: HttpClient,
   ) { }
 
   
@@ -76,16 +78,22 @@ private subscription: any;
     
   }
 
+  searchType: string = 'date';
+  searchValue: string = '';
+  results: any[] = [];
   search() {
-    const searchTerm = this.searchTerm.trim().toLowerCase();
-    if (searchTerm) {
-      this.filteredData = this.DeviceAction.filter(item => {
-          const itemDate = item.time; // Tách ngày từ thời gian
-          return itemDate.includes(searchTerm); // So sánh với ngày
-      });
-    } else {
-      this.filteredData = this.DeviceAction;
-    }
+    const url = `http://localhost:8080/api/device-action/search?type=${this.searchType}&value=${this.searchValue}`;
+    console.log('Kết quả tìm kiếm:', url);
+    this.http.get<any[]>(url).subscribe(
+      (response) => {
+        this.results = response;
+        this.filteredData = this.results.reverse();
+      
+      },
+      (error) => {
+        console.error('Lỗi khi tìm kiếm:', error);
+      }
+    );
   }
   
 

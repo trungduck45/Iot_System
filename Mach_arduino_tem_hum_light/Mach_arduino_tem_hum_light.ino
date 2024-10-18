@@ -4,11 +4,11 @@
 #include <AsyncMqttClient.h>
 #include <ArduinoJson.h>
 
-#define WIFI_SSID "An Nhien" // "iPhone"
-#define WIFI_PASSWORD "999999999" // "khongcomatkhau"
+#define WIFI_SSID "iPhone"//"An Nhien" // "Minh"//
+#define WIFI_PASSWORD  "khongcomatkhau"// "999999999" // "12345678"// 
 
 // Raspberri Pi Mosquitto MQTT Broker
-#define MQTT_HOST IPAddress(192,168,1,2) //(172, 20, 10,2)
+#define MQTT_HOST IPAddress(172, 20, 10,2) //(192,168,1,2)//(192,168,43,3) //
 #define MQTT_PORT 1883
 
 // Topic cho dữ liệu sensor
@@ -25,7 +25,7 @@
 #define Fan_PIN 12  // Thay đổi theo chân thực tế
 #define Led1_PIN 4  // Thay đổi theo chân thực tế
 #define Led2_PIN 5  // Thay đổi theo chân thực tế
-
+#define WarningLed_PIN D3
 // Uncomment whatever DHT sensor type you're using
 #define DHTTYPE DHT11  // DHT 11
 
@@ -36,6 +36,11 @@ DHT dht(DHTPIN, DHTTYPE);
 float temp;
 float hum;
 float light;  
+int dustLevel = 0; 
+
+bool isBlinking = false;  // Trạng thái nhấp nháy của LED
+unsigned long blinkPreviousMillis = 0;
+const long blinkInterval = 500;
 
 AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
@@ -49,10 +54,7 @@ const long interval = 5000;       // Interval at which to publish sensor reading
 #define MQTT_USERNAME "trungduc"
 #define MQTT_PASSWORD "trungduc"
 
-// Variables for temperature checking
-bool isBlinking = false;
-unsigned long blinkPreviousMillis = 0;
-const long blinkInterval = 500;  // Thời gian nhấp nháy 1 giây
+
 
 void connectToWifi() {
   Serial.println("Connecting to Wi-Fi...");
@@ -163,6 +165,7 @@ void setup() {
   pinMode(Fan_PIN, OUTPUT);
   pinMode(Led1_PIN, OUTPUT);
   pinMode(Led2_PIN, OUTPUT);
+  pinMode(WarningLed_PIN, OUTPUT); 
 
   connectToWifi();
 }
@@ -170,7 +173,7 @@ void loop() {
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
-    
+
     hum = dht.readHumidity();
     temp = dht.readTemperature();
     int analogValue = analogRead(A0);  // Đọc giá trị từ chân analog (A0)
@@ -179,15 +182,13 @@ void loop() {
     // Chuyển đổi giá trị analog thành Lux từ 500 đến 0
     float lux = 500 - (analogValue / 1023.0) * 500;
 
-
     int light = lux;  // Đọc giá trị từ cảm biến ánh sáng
 
     // Làm tròn nhiệt độ và độ ẩm đến 1 chữ số sau dấu thập phân
     float roundedTemp = round(temp * 10) / 10.0;
     float roundedHum = round(hum * 10) / 10.0;
 
-    // Tạo giá trị ngẫu nhiên cho độ bụi từ 30 đến 100
-    int dustLevel = random(30, 101); // random(30, 101) trả về số ngẫu nhiên từ 30 đến 100
+    int dustLevel = random(0, 101);  
 
     // Tạo đối tượng JSON
     String jsonString = String(roundedTemp) + "," + String(roundedHum) + "," + String(light) + "," + String(dustLevel);
@@ -204,6 +205,27 @@ void loop() {
     uint16_t packetId = mqttClient.publish(MQTT_PUB_SENSOR, 1, true, jsonString.c_str());
     Serial.printf("Đang xuất bản trên chủ đề %s với QoS 1, packetId %i: ", MQTT_PUB_SENSOR, packetId);
     Serial.printf("Tin nhắn: %s \n", jsonString.c_str());
+
+    // Điều khiển LED nhấp nháy dựa trên giá trị bụi
+    if (dustLevel > 60 && !isBlinking) {
+      isBlinking = true;
+      publishDeviceState("WarningLed", "On");
+    } 
+    else if (dustLevel < 50 && isBlinking) {
+      isBlinking = false;
+      publishDeviceState("WarningLed", "Off");
+      digitalWrite(WarningLed_PIN, LOW);  // Đảm bảo LED tắt
+    }
+  }
+
+  // Kiểm tra và xử lý trạng thái nhấp nháy của LED
+  if (isBlinking) {
+    unsigned long blinkCurrentMillis = millis();
+    if (blinkCurrentMillis - blinkPreviousMillis >= blinkInterval) {
+      blinkPreviousMillis = blinkCurrentMillis;
+      digitalWrite(WarningLed_PIN, !digitalRead(WarningLed_PIN));
+    }
   }
 }
+
 

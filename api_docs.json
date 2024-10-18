@@ -1,97 +1,190 @@
 {
-  "collection": {
-      "info": {
-          "_postman_id": "5e54e70b-4b35-4ef1-af74-ec614566a8e1",
-          "name": "Iot",
-          "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-          "updatedAt": "2024-09-19T03:57:22.000Z",
-          "createdAt": "2024-07-02T09:03:56.000Z",
-          "lastUpdatedBy": "34374853",
-          "uid": "34374853-5e54e70b-4b35-4ef1-af74-ec614566a8e1"
-      },
-      "item": [
-          {
-              "name": "device",
-              "id": "b6455e93-53b4-4b9c-886d-383065ffc691",
-              "protocolProfileBehavior": {
-                  "disableBodyPruning": true
-              },
-              "request": {
-                  "method": "GET",
-                  "header": [],
-                  "url": {
-                      "raw": "localhost:8080/api/device-action",
-                      "host": [
-                          "localhost"
-                      ],
-                      "port": "8080",
-                      "path": [
-                          "api",
-                          "device-action"
-                      ]
-                  }
-              },
-              "response": [],
-              "uid": "34374853-b6455e93-53b4-4b9c-886d-383065ffc691"
-          },
-          {
-              "name": "pub-device",
-              "id": "1efcf68d-afe7-409e-af27-c2f03466e45a",
-              "protocolProfileBehavior": {
-                  "disableBodyPruning": true
-              },
-              "request": {
-                  "method": "POST",
-                  "header": [],
-                  "body": {
-                      "mode": "raw",
-                      "raw": "{\r\n    \"topic\":\"device/action\",\r\n    \"message\":\"Fan,On\"\r\n}",
-                      "options": {
-                          "raw": {
-                              "language": "json"
-                          }
-                      }
-                  },
-                  "url": {
-                      "raw": "http://localhost:8080/api/publish",
-                      "protocol": "http",
-                      "host": [
-                          "localhost"
-                      ],
-                      "port": "8080",
-                      "path": [
-                          "api",
-                          "publish"
-                      ]
-                  }
-              },
-              "response": [],
-              "uid": "34374853-1efcf68d-afe7-409e-af27-c2f03466e45a"
-          },
-          {
-              "name": "enviroment",
-              "id": "9617c58d-2a4e-48ba-81d5-49acba0add5b",
-              "protocolProfileBehavior": {
-                  "disableBodyPruning": true
-              },
-              "request": {
-                  "method": "GET",
-                  "header": [],
-                  "url": {
-                      "raw": "localhost:8080/api/environmental-data",
-                      "host": [
-                          "localhost"
-                      ],
-                      "port": "8080",
-                      "path": [
-                          "api",
-                          "environmental-data"
-                      ]
-                  }
-              },
-              "response": [],
-              "uid": "34374853-9617c58d-2a4e-48ba-81d5-49acba0add5b"
-          }
-      ]
-  }
+    "collection": {
+        "info": {
+            "_postman_id": "5e54e70b-4b35-4ef1-af74-ec614566a8e1",
+            "name": "Iot",
+            "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+            "updatedAt": "2024-10-14T04:10:39.000Z",
+            "createdAt": "2024-07-02T09:03:56.000Z",
+            "lastUpdatedBy": "34374853",
+            "uid": "34374853-5e54e70b-4b35-4ef1-af74-ec614566a8e1"
+        },
+        "item": [
+            {
+                "name": "device",
+                "id": "b6455e93-53b4-4b9c-886d-383065ffc691",
+                "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                },
+                "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                        "raw": "localhost:8080/api/device-action",
+                        "host": [
+                            "localhost"
+                        ],
+                        "port": "8080",
+                        "path": [
+                            "api",
+                            "device-action"
+                        ]
+                    }
+                },
+                "response": [],
+                "uid": "34374853-b6455e93-53b4-4b9c-886d-383065ffc691"
+            }, {
+                "name": "pub-device",
+                "id": "1efcf68d-afe7-409e-af27-c2f03466e45a",
+                "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                },
+                "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                        "mode": "raw",
+                        "raw": "{\r\n    \"topic\":\"device/action\",\r\n    \"message\":\"Fan,On\"\r\n}",
+                        "options": {
+                            "raw": {
+                                "language": "json"
+                            }
+                        }
+                    },
+                    "url": {
+                        "raw": "http://localhost:8080/api/publish",
+                        "protocol": "http",
+                        "host": [
+                            "localhost"
+                        ],
+                        "port": "8080",
+                        "path": [
+                            "api",
+                            "publish"
+                        ]
+                    }
+                },
+                "response": [],
+                "uid": "34374853-1efcf68d-afe7-409e-af27-c2f03466e45a"
+            },
+            {
+                "name": "enviroment",
+                "id": "9617c58d-2a4e-48ba-81d5-49acba0add5b",
+                "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                },
+                "request": {
+                    "method": "GET",
+                    "header": [],
+                    "body": {
+                        "mode": "raw",
+                        "raw": "",
+                        "options": {
+                            "raw": {
+                                "language": "json"
+                            }
+                        }
+                    },
+                    "url": {
+                        "raw": "localhost:8080/api/environmental-data",
+                        "host": [
+                            "localhost"
+                        ],
+                        "port": "8080",
+                        "path": [
+                            "api",
+                            "environmental-data"
+                        ]
+                    }
+                },
+                "response": [],
+                "uid": "34374853-9617c58d-2a4e-48ba-81d5-49acba0add5b"
+            },{
+                "name": "search-enviroment",
+                "id": "83bfe778-0f42-4c75-bb5f-e3d727a5348b",
+                "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                },
+                "request": {
+                    "method": "GET",
+                    "header": [],
+                    "body": {
+                        "mode": "raw",
+                        "raw": "",
+                        "options": {
+                            "raw": {
+                                "language": "json"
+                            }
+                        }
+                    },
+                    "url": {
+                        "raw": "http://localhost:8080/api/environmental-data/search?type=temperature&value=30\n",
+                        "protocol": "http",
+                        "host": [
+                            "localhost"
+                        ],
+                        "port": "8080",
+                        "path": [
+                            "api",
+                            "environmental-data",
+                            "search"
+                        ],
+                        "query": [
+                            {
+                                "key": "type",
+                                "value": "temperature"
+                            },
+                            {
+                                "key": "humidity",
+                                "value": "60.0",
+                                "disabled": true
+                            },
+                            {
+                                "key": "value",
+                                "value": "30\n"
+                            }
+                        ]
+                    }
+                },
+                "response": [],
+                "uid": "34374853-83bfe778-0f42-4c75-bb5f-e3d727a5348b"
+            },
+            {
+                "name": "search-device",
+                "id": "6923b0cb-8a11-46dd-b3f9-4019bb271765",
+                "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                },
+                "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                        "raw": "http://localhost:8080/api/device-action/search?type=date&value=2024-10-08",
+                        "protocol": "http",
+                        "host": [
+                            "localhost"
+                        ],
+                        "port": "8080",
+                        "path": [
+                            "api",
+                            "device-action",
+                            "search"
+                        ],
+                        "query": [
+                            {
+                                "key": "type",
+                                "value": "date"
+                            },
+                            {
+                                "key": "value",
+                                "value": "2024-10-08"
+                            }
+                        ]
+                    }
+                },
+                "response": [],
+                "uid": "34374853-6923b0cb-8a11-46dd-b3f9-4019bb271765"
+            }
+        ]
+    }
 }

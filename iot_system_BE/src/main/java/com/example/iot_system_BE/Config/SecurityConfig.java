@@ -23,6 +23,8 @@ public class SecurityConfig {
             .authorizeRequests(authz -> authz
                 .requestMatchers("/api/environmental-data").permitAll()
                 .requestMatchers("/api/device-action").permitAll()
+                .requestMatchers("/api/environmental-data/search").permitAll()
+                .requestMatchers("/api/device-action/search").permitAll()
                 .requestMatchers("/api/publish").permitAll() // Cho phép truy cập không yêu cầu xác thực
                 .anyRequest().authenticated()
             );

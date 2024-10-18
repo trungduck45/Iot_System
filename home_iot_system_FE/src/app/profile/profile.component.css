@@ -1,22 +1,31 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #f0f0f0;
+  margin: 0px 0px 0px 0px;
+  margin-bottom: 0px;
+}
 .profile-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 20px;
     padding: 20px;
-    border: 1px solid #ccc;
+    border: 1px solid #dadada;
     border-radius: 10px;
     max-width: 400px;
     margin: auto;
     margin-top: 30px ;
+    margin-bottom: 30px;
+    background-color: white;
   }
   
   .profile-picture img {
     width: 150px;
     height: 150px;
-    border-radius: 50%;
+    border-radius: 30px;
     object-fit: cover;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
   
   .profile-details {
@@ -32,11 +41,32 @@
   .profile-details p {
     margin: 5px 0;
     font-size: 18px;
+    margin-top: 10px;
+  }
+  
+  .profile-links {
+    display: flex;
+    gap: 20px; /* Khoảng cách giữa các ô */
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .link-box {
+    padding: 10px;
+    border: 1px solid #e9e9e9; /* Đường viền của ô */
+    background-color: #f9f9f9; /* Màu nền của ô liên kết */
+    text-align: center; /* Căn giữa chữ */
+    display: flex; /* Sử dụng flexbox */
+    justify-content: center; /* Canh giữa theo chiều ngang */
+    align-items: center; /* Canh giữa theo chiều dọc */
+    height: 40px; /* Chiều cao ô liên kết */
+    border-radius: 20px;
   }
   
   .profile-links a {
-    color: rgb(54, 54, 237);
-    text-decoration: underline; /* Optional: Remove underline from links */
+    text-decoration: none; /* Tắt gạch chân */
+    color: #007bff; /* Màu chữ liên kết (bạn có thể thay đổi màu tùy thích) */
+
   }
   
  

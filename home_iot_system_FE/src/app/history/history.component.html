@@ -1,10 +1,22 @@
 <div class="history-container">
-  <div class="search-bar">
-    
-    <input type="text" placeholder="Search by date..." [(ngModel)]="searchTerm" (ngModelChange)="search()" />
-    <button (click)="search()">
-      <i class="fa fa-search"></i> <!-- Icon tìm kiếm -->
-    </button>
+  <div class="search-container">
+    <label for="searchType">Search by:</label>
+    <select [(ngModel)]="searchType" id="searchType">
+      <option value="date">Time</option>
+    </select>
+  
+    <input [(ngModel)]="searchValue" placeholder="Nhập giá trị tìm kiếm" />
+  
+    <button (click)="search()">Search</button>
+  
+    <!-- <div *ngIf="results.length > 0">
+      <h3>Kết quả tìm kiếm:</h3>
+      <ul>
+        <li *ngFor="let data of results">
+          {{ data.time }} - Nhiệt độ: {{ data.temperature }}°C, Độ ẩm: {{ data.humidity }}%, Ánh sáng: {{ data.light }} Lux
+        </li>
+      </ul>
+    </div> -->
   </div>
 
 

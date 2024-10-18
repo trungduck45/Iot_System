@@ -1,6 +1,11 @@
 <!-- Thêm Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <div class="container">
+  <!-- <div class="real-time-clock">
+    <h1>Thời gian hiện tại: {{ currentTime }}</h1>
+    <p >Temperature: {{temperature}}°C, Humidity: {{humidity}}%, Light: {{light}} Lux, Smoke: {{smoke}}</p>
+   
+  </div> -->
   <div class="alert-box" *ngIf="showAlert">
     Mức độ ánh sáng đang ở mức cao
     <button class="close-btn" (click)="closeAlert()">X</button>
@@ -47,7 +52,7 @@
         </div>
       </div>
 
-      <div class="col" [ngClass]="getLightColor()">
+      <div class="col" [ngClass]="[getLightColor()]">
         <div style="display: flex; align-items: center;">
           <img src=".\assect\sunny.png" alt="Light Image" style="width: 40px; height: 40px; margin-right: 10px;" />
 
@@ -59,10 +64,10 @@
           </div>
         </div>
       </div>
-      <div class="col" [ngClass]="[getSmokeColor(), smoke >= 80 ? 'blink' : '']">
+      <div class="col" [ngClass]="[getSmokeColor()]">
         <div style="display: flex; align-items: center;">
           <img src=".\assect\dust.png" alt="Smoke Image" style="width: 40px; height: 40px; margin-right: 10px;" />
-          <!-- Adjust the path and size as needed -->
+     
           <div>
             <h2 style="margin: 0;">
               Smoke
@@ -70,7 +75,17 @@
             <p style="margin: 0;">{{ smoke }} </p>
           </div>
         </div>
-      </div>
+      </div> 
+      <!-- <div class="col canhbao" [ngClass]="{'blink': light > 200}">
+        <div  style="display: flex; align-items: center;">
+          <img src=".\assect\warning.png" alt=" Image" style="width: 40px; height: 40px; margin-right: 10px;" />
+          <div>
+            <h2 >
+              Warning
+            </h2>
+          </div>
+        </div>
+      </div> -->
 
 
 
@@ -82,24 +97,24 @@
         <div class="chart-container">
           <!-- Biểu đồ 1 -->
           <div class="chart-item">
-            <h2>Temperature & Humidity</h2>
-            <ngx-charts-line-chart [view]="[440, 440]" [scheme]="colorScheme" [results]="multi" [xAxis]="true"
+            <h2>Chart</h2>
+            <ngx-charts-line-chart [view]="[900, 430]" [scheme]="colorScheme" [results]="multi" [xAxis]="true"
               [yAxis]="true" [legend]="true" [legendPosition]="legendPosition" [showXAxisLabel]="true"
-              [showYAxisLabel]="true" [yScaleMin]="0" [yScaleMax]="100" [autoScale]="false"
+              [showYAxisLabel]="true" [yScaleMin]="0" [yScaleMax]="500" [autoScale]="false"
                [xAxisLabel]="'Date Time'" [yAxisLabel]="'Value'">
             </ngx-charts-line-chart>
 
           </div>
 
           <!-- Biểu đồ 2 -->
-          <div class="chart-item">
-            <h2>Light</h2>
+          <!-- <div class="chart-item">
+            <h2>Smoke</h2>
             <ngx-charts-line-chart [view]="[440, 440]" [scheme]="lightColorScheme" [results]="lightChartData"
               [xAxis]="true" [yAxis]="true" [legend]="true" [legendPosition]="legendPosition" [showXAxisLabel]="true"
-              [showYAxisLabel]="true" [yScaleMin]="0" [yScaleMax]="500" [autoScale]="false"
+              [showYAxisLabel]="true" [yScaleMin]="0" [yScaleMax]="1000" [autoScale]="false"
                [xAxisLabel]="'Date Time'" [yAxisLabel]="'Value'">
             </ngx-charts-line-chart>
-          </div>
+          </div> -->
         </div>
       </div>
 
@@ -139,10 +154,18 @@
             <button (click)="toggleLED2(false)" [ngClass]="{'off-active': !isLED2On, 'inactive': isLED2On}">OFF</button>
           </span>
         </p>
-        <div>
-          <p>Số lần bật quạt trong ngày: {{ fanOnCount }}</p>
-          <p>Số lần khói >= 80 trong ngày: {{ smokeData.length }}</p>
-        </div>
+        <p>
+          <span class="device-name">Warning LED</span>
+          <span class="canhbao">
+            <i class="fas fa-exclamation-triangle" [ngClass]="{'blink': isWaringLedOn}"></i>
+          </span>
+        </p>
+        <!-- <div>
+          <p>Số lần bật Led-1 trong ngày: {{ led1OnCount }}</p>
+          <p>Số lần tắt Led-1 trong ngày: {{ led1OffCount }}</p>
+        </div> -->
+        
+        <p> Số lần bật đèn CB trong ngày : {{WarningLedOn}}</p>
       </div>
 
     </div>

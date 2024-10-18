@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "environmental_data")
 public class EnvironmentalData {
 
     @Id
@@ -56,7 +57,8 @@ public class EnvironmentalData {
 
     public void setSmoke(double smoke) {
         this.smoke = smoke;
-    }
+
+    } 
 
     public LocalDateTime getTime() {
         return time;

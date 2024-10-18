@@ -1,7 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  
   background-color: #f0f0f0;
 }
 
@@ -9,6 +9,7 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+  margin-top: 0px;
 }
 
 .col-nhiet-do {
@@ -459,10 +460,10 @@ input:checked+.slider:before {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 .blink {
-  animation: blinker 1s linear infinite;
+  animation: blink-animation 1s infinite;
 }
 
-@keyframes blinker {
+@keyframes blink-animation {
   50% {
     opacity: 0;
   }
@@ -497,4 +498,18 @@ input:checked+.slider:before {
   background: linear-gradient(to left, #4caf50, #ffeb3b, #f44336); /* Gradient với nhiều màu */
   width: 100%;
   transition: width 0.1s linear;
+}
+.canhbao{
+color:rgb(237, 108, 108);
+font-size: 35px;
+margin-right: 70px;
+}
+.real-time-clock {
+  text-align: left;
+  font-size: 10px;
+  color: #333;
+  margin-left: 20px;
+}
+.real-time-clock p{
+  font-size: 15px;
 }

@@ -1,21 +1,29 @@
 <div class="statistics-container">
   <!-- Ô tìm kiếm và nút tìm kiếm -->
-  <div class="search-bar">
-    <label for="search-by">Search by:</label>
-    <select id="search-by" [(ngModel)]="searchBy" (change)="search()">
-      <option value="all">All</option>
-      <option value="date">Date</option>
+  <div class="search-container">
+    <label for="searchType">Search by:</label>
+    <select [(ngModel)]="searchType" id="searchType">
       <option value="temperature">Temperature</option>
       <option value="humidity">Humidity</option>
       <option value="light">Light</option>
+      <option value="date">Time</option>
     </select>
-
-    <input type="text" placeholder="Search..." [(ngModel)]="searchTerm" (ngModelChange)="search()" />
-    <button (click)="search()">
-      <i class="fa fa-search"></i> <!-- Search icon -->
-    </button>
+  
+    <input [(ngModel)]="searchValue" placeholder="Nhập giá trị tìm kiếm" />
+  
+    <button (click)="search()">Search</button>
+  
+    <!-- <div *ngIf="results.length > 0">
+      <h3>Kết quả tìm kiếm:</h3>
+      <ul>
+        <li *ngFor="let data of results">
+          {{ data.time }} - Nhiệt độ: {{ data.temperature }}°C, Độ ẩm: {{ data.humidity }}%, Ánh sáng: {{ data.light }} Lux
+        </li>
+      </ul>
+    </div> -->
   </div>
-
+  
+  
 
   <!-- Dòng "Show rows" và box chọn số lượng giá trị hiển thị -->
 
@@ -42,7 +50,7 @@
         <td>{{ item.temperature }}°C</td>
         <td>{{ item.humidity }}%</td>
         <td>{{ item.light }} lux</td>
-        <td>{{item.smoke}}</td>
+        <td>{{ item.smoke }}</td>
         <td>{{ item.time | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
 
       </tr>
